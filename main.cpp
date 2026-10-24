@@ -1,46 +1,68 @@
 #include "raylib.h"
 
+// 1. Membuat Blueprint untuk objek Drone
+struct Drone {
+    Vector3 position;
+    Vector3 velocity;
+    Color color;
+};
+
 int main() {
-    // 1. Inisialisasi Ukuran Jendela Simulasi
-    const int screenWidth = 800;
-    const int screenHeight = 600;
-    InitWindow(screenWidth, screenHeight, "Swarm UAV SAR - 3D Void Test");
-
-    // 2. Setup Kamera 3D
-    Camera3D camera = { 0 };
-    camera.position = (Vector3){ 10.0f, 10.0f, 10.0f }; // Posisi sudut pandang
-    camera.target = (Vector3){ 0.0f, 0.0f, 0.0f };      // Titik tengah yang dilihat
-    camera.up = (Vector3){ 0.0f, 1.0f, 0.0f };          // Arah atas dunia 3D
-    camera.fovy = 45.0f;                                // Field of View (FOV)
-    camera.projection = CAMERA_PERSPECTIVE;
-
+    InitWindow(800, 600, "Swarm UAV SAR - Simulasi Bergerak");
     SetTargetFPS(60);
 
-    // 3. Game Loop Utama
+    Camera3D camera = { 0 };
+    camera.position = (Vector3){ 12.0f, 12.0f, 12.0f };
+    camera.target = (Vector3){ 0.0f, 0.0f, 0.0f };
+    camera.up = (Vector3){ 0.0f, 1.0f, 0.0f };
+    camera.fovy = 45.0f;
+    camera.projection = CAMERA_PERSPECTIVE;
+
+    // 2. Melahirkan 1 unit drone dengan posisi dan kecepatan awal
+    Drone uav = {
+        { 0.0f, 1.0f, 0.0f },     // Posisi awal (x, y, z)
+        { 0.08f, 0.0f, 0.05f },   // Kecepatan (melaju ke arah X dan Z)
+        RED                       // Warna drone
+    };
+
     while (!WindowShouldClose()) {
-        // Kontrol kamera: Tahan Klik Kiri + Drag Mouse untuk memutar kamera 3D
         UpdateCamera(&camera, CAMERA_ORBITAL);
 
-        // 4. Render Visual
+        // --- UPDATE LOGIC (Matematika Pergerakan) ---
+        // Drone bergerak maju sesuai kecepatannya
+        uav.position.x += uav.velocity.x;
+        uav.position.z += uav.velocity.z;
+
+        // Logika pantulan sederhana agar drone tidak terbang hilang ke luar grid
+        if (uav.position.x > 5.0f || uav.position.x < -5.0f) uav.velocity.x *= -1.0f;
+        if (uav.position.z > 5.0f || uav.position.z < -5.0f) uav.velocity.z *= -1.0f;
+
+
+        // --- DRAW LOGIC (Visualisasi 3D) ---
         BeginDrawing();
-            // Latar belakang void serba gelap (R:10, G:10, B:15)
-            ClearBackground((Color){ 10, 10, 15, 255 });
+            ClearBackground((Color){ 10, 10, 15, 255 }); // Void Background
 
             BeginMode3D(camera);
-                // Grid tipis sebagai acuan bidang dasar
-                DrawGrid(20, 1.0f);
+                DrawGrid(10, 1.0f); // Grid dasar ukuran 10x10
 
-                // Representasi sementara 1 unit drone (kubus merah + garis putih)
-                DrawCube((Vector3){ 0.0f, 1.0f, 0.0f }, 1.0f, 1.0f, 1.0f, RED);
-                DrawCubeWires((Vector3){ 0.0f, 1.0f, 0.0f }, 1.0f, 1.0f, 1.0f, WHITE);
+                // Gambar fisik drone (Kubus)
+                DrawCube(uav.position, 0.6f, 0.6f, 0.6f, uav.color);
+                DrawCubeWires(uav.position, 0.6f, 0.6f, 0.6f, WHITE);
+
+                // Gambar garis vektor berwarna hijau ke arah depan drone (menunjukkan arah gerak)
+                Vector3 arahDepan = { 
+                    uav.position.x + (uav.velocity.x * 15), 
+                    uav.position.y, 
+                    uav.position.z + (uav.velocity.z * 15) 
+                };
+                DrawLine3D(uav.position, arahDepan, GREEN);
+
             EndMode3D();
 
-            // Teks penanda di pojok kiri atas
-            DrawText("3D VOID TEST - Drag Mouse untuk Putar Kamera", 10, 10, 16, RAYWHITE);
+            DrawText("Simulasi Aktif: Drone bergerak otomatis", 10, 10, 18, RAYWHITE);
         EndDrawing();
     }
 
-    // 5. Bersihkan Memori & Tutup Jendela
     CloseWindow();
     return 0;
 }
