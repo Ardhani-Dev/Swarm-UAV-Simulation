@@ -1,1 +1,1 @@
-g++ main.cpp -o sim_test -std=c++14 -I./include -L./lib -lraylib -framework OpenGL -framework Cocoa -framework IOKit -framework CoreVideo -framework QuartzCore && ./sim_test
+g++ test.cpp -o sim_test -std=c++14 -I./include -L./lib -lraylib -framework OpenGL -framework Cocoa -framework IOKit -framework CoreVideo -framework QuartzCore && ./sim_test
