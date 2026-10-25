@@ -1,4 +1,7 @@
-#include "raylib.h"
+#include <raylib.h>
+
+//To minimize the time spent on this project,
+//I'm using Gemini AI as a code generator for raylib setup test
 
 // 1. Membuat Blueprint untuk objek Drone
 struct Drone {
@@ -33,7 +36,7 @@ int main() {
 
 
     while (!WindowShouldClose()) {
-        UpdateCamera(&camera, CAMERA_ORBITAL);
+        UpdateCamera(&camera, CAMERA_FREE);
 
         // --- UPDATE LOGIC (Matematika Pergerakan) ---
         // Drone bergerak maju sesuai kecepatannya
